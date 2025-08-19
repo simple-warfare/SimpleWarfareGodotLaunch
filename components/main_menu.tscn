@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://bcyuidmyyexe3"]
+
+[ext_resource type="Texture2D" uid="uid://ddt6pnkjtn1fw" path="res://assets/textures/interfaces/dialog.png" id="1_vmbys"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qfsoo"]
+atlas = ExtResource("1_vmbys")
+region = Rect2(512, 464, 209, 33)
+
+[node name="MainMenu" type="NinePatchRect"]
+offset_right = 18.0
+offset_bottom = 18.0
+texture = SubResource("AtlasTexture_qfsoo")
+patch_margin_left = 9
+patch_margin_top = 9
+patch_margin_right = 9
+patch_margin_bottom = 9
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2

@@ -1,0 +1,21 @@
+[gd_scene load_steps=3 format=3 uid="uid://c4qdt3nl61e77"]
+
+[ext_resource type="Theme" uid="uid://b3lrippcdysde" path="res://themes/button/main_menu_button.tres" id="1_w3vts"]
+[ext_resource type="Script" uid="uid://bvih60wcfofoc" path="res://components/main_button.gd" id="2_8rx20"]
+
+[node name="MainButton" type="Button"]
+offset_right = 6.0
+offset_bottom = 6.0
+focus_mode = 0
+theme = ExtResource("1_w3vts")
+script = ExtResource("2_8rx20")
+
+[node name="Label" type="Label" parent="."]
+modulate = Color(0.8, 0.8, 0.8, 1)
+layout_mode = 1
+offset_left = 2.5
+offset_top = -8.16667
+offset_right = 3.5
+offset_bottom = 14.1667
+pivot_offset = Vector2(0.5, 11.1667)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
