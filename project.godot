@@ -11,9 +11,18 @@ config_version=5
 [application]
 
 config/name="SimpleWarfareGodotLauncher"
-run/main_scene="uid://bxw3loujkocc0"
+run/main_scene="uid://mwjrfy6co3tv"
+config/use_custom_user_dir=true
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Adaptor="*res://scripts/adaptor/adaptor.gd"
+Globals="*res://GLOBALS.gd"
+Seetings="*res://SEETINGS.gd"
+Message="*res://scripts/server/message.gd"
+Server="*res://scripts/server/server.gd"
 
 [display]
 
@@ -22,6 +31,11 @@ window/size/viewport_height=1080
 window/size/resizable=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/stretch/scale=0.7
+
+[dotnet]
+
+project/assembly_name="SimpleWarfareGodotLauncher"
 
 [editor]
 
@@ -34,6 +48,7 @@ theme/default_font_multichannel_signed_distance_field=true
 
 [internationalization]
 
+locale/translation_remaps={}
 rendering/snap/snap_2d_transforms_to_pixel=false
 rendering/snap/snap_2d_vertices_to_pixel=false
 rendering/size/viewport_height=648
@@ -45,5 +60,6 @@ rendering/quality/msaa_2d=1
 textures/canvas_textures/default_texture_filter=3
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_2d=1
 anti_aliasing/quality/msaa_3d=1
