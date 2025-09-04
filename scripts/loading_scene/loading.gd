@@ -1,9 +1,14 @@
 extends Control
-@onready var progress_bar = $AspectRatioContainer/LoadingScreen/MarginContainer/ProgressBar
+@onready var progress_bar = $AspectRatioContainer/LoadingScreen/MarginContainer/VBoxContainer/ProgressBar
+@onready var tip_label =$AspectRatioContainer/LoadingScreen/MarginContainer/VBoxContainer/RichTextLabel
 var next_scene:String
 var is_changing:bool
-
+signal change_scene
 signal scene_changed
+signal scene_ready
+
+func _ready() -> void:
+	change_scene.connect(change)
 
 func next(next_scene_path:String) -> void:
 	if !next_scene_path.is_empty():
@@ -23,9 +28,12 @@ func _process(delta: float) -> void:
 		progress_bar.value = lerpf(progress_bar.value,100.0,delta*5)
 		if progress_bar.value >= 99.0:
 			progress_bar.value = 100.0
-			is_changing = false
-			await get_tree().create_timer(0.2).timeout
-			var packed_next_scene = ResourceLoader.load_threaded_get(next_scene)
-			get_tree().change_scene_to_packed(packed_next_scene)
-			scene_changed.emit()
-			progress_bar.value = 0.0
+			scene_ready.emit(self)
+
+
+func change():
+	is_changing = false
+	var packed_next_scene = ResourceLoader.load_threaded_get(next_scene)
+	get_tree().change_scene_to_packed(packed_next_scene)
+	scene_changed.emit()
+	progress_bar.value = 0.0

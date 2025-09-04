@@ -20,11 +20,11 @@ enum Kind{
 	set(v):
 		kind = v
 		if lbl:
-			description = Globals.get_room_scene_button_description(v)
+			description = Kind.keys()[v]
 			lbl.text = description
 			_update_layout()
 		
 
 func _on_ready() -> void:
-	description = Globals.get_room_scene_button_description(kind)
+	description = Kind.keys()[kind]
 	lbl.text = description

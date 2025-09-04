@@ -1,13 +1,20 @@
-[gd_scene load_steps=5 format=3 uid="uid://bf85ji63icwxo"]
+[gd_scene load_steps=10 format=3 uid="uid://bf85ji63icwxo"]
 
 [ext_resource type="Script" uid="uid://cfub0hxk00f3w" path="res://scenes/mods.gd" id="1_r6d6q"]
 [ext_resource type="Texture2D" uid="uid://ddt6pnkjtn1fw" path="res://assets/textures/interfaces/dialog.png" id="2_r6d6q"]
+[ext_resource type="Theme" uid="uid://b3lrippcdysde" path="res://themes/button/main_menu_button.tres" id="3_gis3k"]
+[ext_resource type="ButtonGroup" uid="uid://bhch3gujajne2" path="res://resources/button_group/mian_scene/main_scene_button_group.tres" id="4_83j8s"]
+[ext_resource type="Script" uid="uid://dikyr40mv5lef" path="res://scripts/settings_scene/diffrent_settings_button.gd" id="5_gis3k"]
+[ext_resource type="LabelSettings" uid="uid://kwlgr14xadfq" path="res://themes/lable_settings/main_scene/label.tres" id="6_am25x"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k7dim"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_r6d6q"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_qfsoo"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_6wm04"]
 atlas = ExtResource("2_r6d6q")
 region = Rect2(512, 464, 209, 33)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f4mfi"]
+bg_color = Color(0.19, 0.19, 0.19, 1)
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -25,19 +32,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_k7dim")
-metadata/_edit_use_anchors_ = true
+theme_override_styles/panel = SubResource("StyleBoxFlat_r6d6q")
 
 [node name="MainMenu" type="NinePatchRect" parent="."]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.01
-anchor_top = 0.01
-anchor_right = 0.99
-anchor_bottom = 0.99
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+offset_top = -1.52588e-05
 grow_horizontal = 2
 grow_vertical = 2
-texture = SubResource("AtlasTexture_qfsoo")
+texture = SubResource("AtlasTexture_6wm04")
 patch_margin_left = 9
 patch_margin_top = 9
 patch_margin_right = 9
@@ -56,3 +63,71 @@ theme_override_constants/margin_left = 9
 theme_override_constants/margin_top = 9
 theme_override_constants/margin_right = 9
 theme_override_constants/margin_bottom = 9
+
+[node name="Control" type="Control" parent="MainMenu/MarginContainer"]
+layout_mode = 2
+
+[node name="Control" type="Control" parent="MainMenu/MarginContainer/Control"]
+layout_mode = 1
+anchor_right = 0.2
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="Panel" parent="MainMenu/MarginContainer/Control/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_f4mfi")
+
+[node name="MarginContainer" type="MarginContainer" parent="MainMenu/MarginContainer/Control/Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainMenu/MarginContainer/Control/Control/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Singleplayer" type="Button" parent="MainMenu/MarginContainer/Control/Control/MarginContainer/VBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+theme = ExtResource("3_gis3k")
+theme_override_font_sizes/font_size = 35
+toggle_mode = true
+button_group = ExtResource("4_83j8s")
+text = " "
+script = ExtResource("5_gis3k")
+description = "Display"
+
+[node name="Label" type="Label" parent="MainMenu/MarginContainer/Control/Control/MarginContainer/VBoxContainer/Singleplayer"]
+modulate = Color(0.8, 0.8, 0.8, 1)
+layout_mode = 1
+offset_left = 90.5
+offset_top = 6.5625
+offset_right = 196.5
+offset_bottom = 48.4375
+pivot_offset = Vector2(53, 20.9375)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+text = "Display"
+label_settings = ExtResource("6_am25x")
+
+[node name="Control2" type="Control" parent="MainMenu/MarginContainer/Control"]
+layout_mode = 1
+anchor_left = 0.2
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[connection signal="ready" from="MainMenu/MarginContainer/Control/Control/MarginContainer/VBoxContainer/Singleplayer" to="MainMenu/MarginContainer/Control/Control/MarginContainer/VBoxContainer/Singleplayer" method="_on_ready"]

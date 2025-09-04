@@ -21,8 +21,8 @@ config/icon="res://icon.svg"
 Adaptor="*res://scripts/adaptor/adaptor.gd"
 Globals="*res://GLOBALS.gd"
 Seetings="*res://SEETINGS.gd"
-Message="*res://scripts/server/message.gd"
-Server="*res://scripts/server/server.gd"
+Message="*res://scripts/backend/message.gd"
+Backend="*res://scripts/backend/backend.gd"
 
 [display]
 

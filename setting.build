@@ -1,0 +1,18 @@
+{
+	"disabled_build_options": {
+		"disable_2d_physics": true,
+		"disable_3d": true,
+		"disable_3d_physics": true,
+		"disable_navigation": true,
+		"openxr": false
+	},
+	"disabled_classes": [
+		"BaseMaterial3D",
+		"Curve3D",
+		"Occluder3D",
+		"Shape3D",
+		"Texture3D",
+		"World3D"
+	],
+	"type": "build_profile"
+}

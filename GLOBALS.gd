@@ -1,67 +1,17 @@
 @tool
 extends Node
 
-var MAIN_MENU_BUTTON_MAP = {
-	MainMenuButton.Kind.Singleplayer:"Singleplayer",
-	MainMenuButton.Kind.Multiplayer:"Multiplayer",
-	MainMenuButton.Kind.Mods:"Mods",
-	MainMenuButton.Kind.Settings:"Settings",
-	MainMenuButton.Kind.Community:"Community",
-	MainMenuButton.Kind.News:"News",
-	MainMenuButton.Kind.Quit:"Quit"
-}
-var MOD_SCENE_BUTTON_MAP = {
-	ModSceneButton.Kind.SaveAndUse:"SaveAndUse",
-	ModSceneButton.Kind.ModAssetLib:"ModAssetLib",
-	ModSceneButton.Kind.EnableMod:"EnableMod",
-	ModSceneButton.Kind.DisableMod:"DisableMod",
-	ModSceneButton.Kind.SaveModSet:"SaveModSet",
-	ModSceneButton.Kind.ChangeModSet:"ChangeModSet",
-}
-var MULTIPLAYER_SCENE_BUTTON_MAP = {
-	MultiplayerSceneButton.Kind.FilterGames:"Filter Games",
-	MultiplayerSceneButton.Kind.DirectIp:"Direct IP",
-	MultiplayerSceneButton.Kind.Create:"Create",
-	MultiplayerSceneButton.Kind.LeaveChat:"Leave Chat",
-	MultiplayerSceneButton.Kind.Back:"Back",
-}
-
-var CREATE_ROOM_SCENE_BUTTON_MAP = {
-	CreateSceneButton.Kind.ChangeMap:"Change Map",
-	CreateSceneButton.Kind.Create:"Create",
-	CreateSceneButton.Kind.Back:"Back",
-}
-
-var SINGLEPLAYER_MENU_BUTTON_MAP = {
-	SingleplayerMenuButton.Kind.Skirmish:"Skirmish",
-	SingleplayerMenuButton.Kind.Missions:"Missions",
-	SingleplayerMenuButton.Kind.SandBox:"SandBox",
-	SingleplayerMenuButton.Kind.Back:"Back",
-}
-
-var ROOM_MENU_BUTTON_MAP = {
-	RoomSceneButton.Kind.SlotAdmin:"Slot Admin",
-	RoomSceneButton.Kind.Players:"Players",
-	RoomSceneButton.Kind.Options:"Options",
-	RoomSceneButton.Kind.Music:"Music",
-	RoomSceneButton.Kind.ChangeMap:"Change Map",
-	RoomSceneButton.Kind.Game:"Game",
-	RoomSceneButton.Kind.Global:"Global",
-	RoomSceneButton.Kind.StartGame:"Start Game",
-	RoomSceneButton.Kind.All:"All",
-	RoomSceneButton.Kind.Status:"Status",
-	RoomSceneButton.Kind.Back:"Back",
-}
-
 var SERVER_PATH = {
-	Globals.OsKind.Linux:"user://server/simple_warfare_server",
-	Globals.OsKind.Windows:"user://server/simple_warfare_server.exe"
+	Globals.OsKind.Linux:"user://simple_warfare_server",
+	Globals.OsKind.Windows:"user://simple_warfare_server.exe"
 }
 
 const LOADING_SCENE = preload("res://scenes/loading.tscn")
+const CRASH_SCENE = preload("res://scenes/crash.tscn")
 const NOW_USE_MOD_SET_CONF = "user://assets/mod_set/now_use.conf"
 const DEFALUT_MOD_SET = "user://assets/mod_set/defalut.toml"
 var loading_scene = LOADING_SCENE.instantiate()
+var crash_scene = CRASH_SCENE.instantiate()
 
 const MOD_SET_DIR = "user://assets/mod_set/"
 const MODS_DIR = "user://assets/mods/"
@@ -83,6 +33,8 @@ enum OsKind{
 	Web,
 	Unknown
 }
+
+
 func _ready() -> void:
 	loading_scene.scene_changed.connect(scene_changed)	
 	load_mod_infos()
@@ -90,29 +42,36 @@ func _ready() -> void:
 	server_config = ServerConfig.new()
 	server_config.load("res://configs/server.cfg")
 	
-func get_main_menu_button_description(button_kind:MainMenuButton.Kind) -> String:
-	return MAIN_MENU_BUTTON_MAP.get(button_kind,"UNKNOWN")
+func get_loading_scene_ready_signal() -> Signal:
+	return loading_scene.scene_ready
 	
-func get_mod_scene_button_description(button_kind:ModSceneButton.Kind) -> String:
-	return MOD_SCENE_BUTTON_MAP.get(button_kind,"UNKNOWN")
-
-func get_multiplayer_scene_button_description(button_kind:MultiplayerSceneButton.Kind) -> String:
-	return MULTIPLAYER_SCENE_BUTTON_MAP.get(button_kind,"UNKNOWN")
-
-func get_create_room_scene_button_description(button_kind:CreateSceneButton.Kind) -> String:
-	return CREATE_ROOM_SCENE_BUTTON_MAP.get(button_kind,"UNKNOWN")
+func get_loading_change_scene_signal() -> Signal:
+	return loading_scene.change_scene
 	
-func get_singleplayer_menu_button_description(button_kind:SingleplayerMenuButton.Kind) -> String:
-	return SINGLEPLAYER_MENU_BUTTON_MAP.get(button_kind,"UNKNOWN")
+func get_loading_tip_label() -> RichTextLabel:
+	return loading_scene.tip_label
 
-func get_room_scene_button_description(button_kind:RoomSceneButton.Kind) -> String:
-	return ROOM_MENU_BUTTON_MAP.get(button_kind,"UNKNOWN")
-	
-func next_scene(scene_path:String):
+func next_scene_and_free_current(scene_path:String) -> void:
 	get_tree().current_scene.queue_free()
 	loading_scene.next(scene_path)
+	loading_scene.scene_ready.connect(change_scene)
 	add_child(loading_scene)
 
+func next_scene(scene_path:String) -> Signal:
+	loading_scene.next(scene_path)
+	add_child(loading_scene)
+	return loading_scene.scene_ready
+	
+func next_scene_and_change_when_ready(scene_path:String) -> void:
+	get_tree().current_scene.queue_free()
+	loading_scene.next(scene_path)
+	loading_scene.scene_ready.connect(change_scene)
+	add_child(loading_scene)
+	
+func change_scene(loading_scene):
+	loading_scene.change_scene.emit()
+	loading_scene.scene_ready.disconnect(change_scene)
+	
 func scene_changed():
 	remove_child(loading_scene)
 	
@@ -172,3 +131,9 @@ func get_os_type() -> OsKind:
 		"Web":
 			kind = OsKind.Web
 	return kind
+
+
+func crash(crash_reason:String):
+	get_tree().current_scene.queue_free()
+	crash_scene.crash_reason.text = crash_reason
+	add_child(crash_scene)

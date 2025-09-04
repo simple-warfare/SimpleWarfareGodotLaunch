@@ -5,7 +5,8 @@ var menu_kind:MenuKind
 
 func _ready() -> void:
 	room_menu_button_group.pressed.connect(room_menu_button_pressed)
-		
+	Backend.start_server()
+	
 func room_menu_button_pressed(button:Button) -> void:
 	match button.kind:
 		RoomSceneButton.Kind.StartGame:

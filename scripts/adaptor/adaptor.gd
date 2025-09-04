@@ -1,75 +1,98 @@
 @tool
 extends Node
 var server_backend:Dictionary
+var server_stdio:FileAccess
+var server = WebSocketPeer.new()
 var client = WebSocketPeer.new()
 
-var last_state = WebSocketPeer.STATE_CLOSED
 var tls_options: TLSOptions = null
-	
-signal connected_to_server()
-signal connection_closed()
-signal message_received(message: Variant)
+
+signal on_server_closed(reason:String)
+signal on_server_closing()
+signal on_server_open()
+signal on_server_connecting()
+
+signal on_client_closed(reason:String)
+signal on_client_closing()
+signal on_client_open()
+signal on_client_connecting()
+
+signal server_message_received(message: Variant)
+signal client_message_received(message: Variant)
 
 func _ready() -> void:
 	set_process(false)
 
-func connect_server() -> int:
-	#server_backend = OS.execute_with_pipe(FileAccess.open(Globals.server_config.server_path,FileAccess.READ).get_path_absolute(), [])
+func connect_adaptor() -> int:
+	server_backend = OS.execute_with_pipe(FileAccess.open(Globals.server_config.server_path,FileAccess.READ).get_path_absolute(), [])
+	if server_backend.is_empty():
+		Globals.crash("无法启动服务端")
+		#Globals.next_scene()
+	#print(FileAccess.open(Globals.server_config.server_path,FileAccess.READ).get_path_absolute())
+	server_stdio = server_backend.get("stdio")
 	set_process(true)
-	print(Globals.server_config.url)
-	return connect_to_url(Globals.server_config.url)
+	return connect_to_url(Globals.server_config.server_url,Globals.server_config.client_url)
 
-func connect_to_url(url) -> int:
-	var err = client.connect_to_url(url, tls_options)
-	if err != OK:
-		return err
-	last_state = client.get_ready_state()
+func connect_to_url(server_url,client_url) -> int:
+	var server_err = server.connect_to_url(server_url, tls_options)
+	var client_err = client.connect_to_url(client_url, tls_options)
+	if server_err != OK:
+		return server_err
+	if client_err != OK:
+		return client_err
 	return OK
 
-
-func send(message) -> int:
+func send_to_server(message:Variant) -> int:
+	return send(server,message)
+	
+func send_to_client(message:Variant) -> int:
+	return send(client,message)
+	
+func send(socket:WebSocketPeer,message:Variant) -> int:
 	if typeof(message) == TYPE_STRING:
-		return client.send_text(message)
-	return client.send(var_to_bytes(message))
+		return socket.send_text(message)
+	return socket.send(var_to_bytes(message))
 
 
-func get_message() -> Variant:
-	if client.get_available_packet_count() < 1:
+func get_message(socket:WebSocketPeer) -> Variant:
+	if socket.get_available_packet_count() < 1:
 		return null
-	var pkt = client.get_packet()
+	var pkt = socket.get_packet()
 	return pkt.get_string_from_utf8()
 
 
 func close(code := 1000, reason := "") -> void:
-	client.close(code, reason)
-	last_state = client.get_ready_state()
+	server.close(code, reason)
 
 
 func clear() -> void:
-	client = WebSocketPeer.new()
-	last_state = client.get_ready_state()
+	server = WebSocketPeer.new()
 
 
 func get_socket() -> WebSocketPeer:
-	return client
+	return server
 
 
-func poll() -> void:
-	if client.get_ready_state() != client.STATE_CLOSED:
-		client.poll()
-	var state = client.get_ready_state()
-	if last_state != state:
-		last_state = state
-		if state == client.STATE_OPEN:
-			connected_to_server.emit()
-		elif state == client.STATE_CLOSED:
-			connection_closed.emit()
-	while client.get_ready_state() == client.STATE_OPEN and client.get_available_packet_count():
-		message_received.emit(get_message())
+func poll(socket:WebSocketPeer,connecting:Signal,open:Signal,closing:Signal,closed:Signal,message_received:Signal) -> void:
+	var state = socket.get_ready_state()
+	if state != socket.STATE_CLOSED:
+		socket.poll()
+	match state:
+		socket.STATE_CONNECTING:
+			connecting.emit()
+		socket.STATE_OPEN:
+			open.emit()
+		socket.STATE_CLOSING:
+			closing.emit()
+		socket.STATE_CLOSED:
+			closed.emit(socket.get_close_reason())
+	while state == socket.STATE_OPEN and socket.get_available_packet_count():
+		server_message_received.emit(get_message(socket))
 
 
 func _process(delta):
-	poll()
+	poll(server,on_server_connecting,on_server_open,on_server_closing,on_client_closed,server_message_received)
+	poll(client,on_client_connecting,on_client_open,on_client_closing,on_client_closed,client_message_received)
 	
 func _notification(what):
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
